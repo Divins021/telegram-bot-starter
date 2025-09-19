@@ -1,6 +1,51 @@
-root = true
+bot.start((ctx) => ctx.reply('Salut, je suis MELIODAS 1.0 ! /help pour voir les commandes.'));
+bot.help((ctx) => ctx.reply('/taguer - tag tous les membres du groupe\n/ping - répondre pong'));
 
-[*]
-indent_size = 2
-end_of_line = lf
-insert_final_newline = true
+bot.command('taguer', async (ctx) => {
+  if (ctx.chat.type === 'group' || ctx.chat.type === 'supergroup') {
+    const members = await ctx.getChatAdministrators(); 
+    let texte = '';
+    members.forEach((m) => {
+      if (m.user.username) {
+        texte += `@${m.user.username} `;
+      }
+    });
+    ctx.reply(texte || 'Pas de usernames trouvés.');
+  } else {
+    ctx.reply('Cette commande marche seulement en groupe.');
+  }
+});
+
+bot.command('ping', (ctx) => {
+  ctx.reply('pong');
+});
+
+bot.launch().then(() => {
+  console.log('Telegram Bot prêt.');
+});
+```
+
+---
+
+`whatsapp/index.js`
+
+```js
+require('dotenv').config();
+const { Client, LocalAuth } = require('whatsapp-web.js');
+
+const client = new Client({
+  authStrategy: new LocalAuth({ clientId: "meliodas_bot" }),
+  puppeteer: { headless: true, args: ['--no-sandbox','--disable-setuid-sandbox'] }
+});
+
+client.on('qr', (qr) => {
+  console.log('QR à scanner :');
+  console.log(qr);
+});
+
+client.on('ready', () => {
+  console.log('WhatsApp Bot prêt.');
+});
+
+client.on('message', async msg => {
+  const body = msg.body.toLowerCase();
